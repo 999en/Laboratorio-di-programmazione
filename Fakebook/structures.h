@@ -1,12 +1,12 @@
-#define MAX 10 
+#define MAX 4
 struct post{
-    char msg[256];
-    int like;
+  char msg[256];
+  int like;
 };
 
 struct bacheca{
-    struct post** deposito;
-    int first_in;
-    int first_out;
-    int lenght;
+  struct post** queue;
+  int length;
+  int first_in;
+  int first_out;
 };
