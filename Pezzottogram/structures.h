@@ -1,11 +1,11 @@
-#define MAX 4
+#define MAX 5
 struct foto{
-    char img_path[256]; 
-    char didascalia[256];
-    int like;
+  char path[256];
+  char didascalia[256];
+  int like;
 };
 
 struct bacheca{
-    struct foto** deposito;
-    int length;
+  struct foto** stack;
+  int length;
 };

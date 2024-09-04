@@ -1,71 +1,74 @@
 #include "functions.h"
 
-int init_queue(struct bacheca* b){
-    b->deposito=NULL;
-    b->length=0;
-}
-int len(struct bacheca*b){
-    return b->length;
-}
-int is_empty(struct bacheca*b){
-    if (len(b)==0)
-    {
-        return 1;
-    } else return 0;
-    
-}
-void push(struct bacheca*b, struct foto*f){
-    b->length=b->length+1;
-    b->deposito=realloc(b->deposito, (b->length)*sizeof(struct foto*));
-    b->deposito[(b->length)-1]=f;
-}
-struct foto* pop(struct bacheca*b){
-    if (is_empty(b)==1)
-    {
-        return NULL;
-    }
-    
-    struct foto* f=b->deposito[(b->length)-1];
-    b->deposito=realloc(b->deposito, ((b->length)-1)*sizeof(struct foto*));
-    b->length--;
-    return f;
-}
-void load_file_from_user(struct bacheca* b, char nomefile[]){
-    FILE* file=fopen(nomefile, "r");
-    if (file==NULL)
-    {
-        perror("errore durante apertura file");
-    }
 
-    while (!feof(file))
-    {
-        struct foto*f=malloc(sizeof(struct foto));
-        fgets(f->img_path, sizeof(f->img_path), file);
-        fgets(f->didascalia, sizeof(f->didascalia), file);
-        fscanf(file, "%d\n", &f->like);
-        push(b, f);
-       
-    }
-    fclose(file);
+void init_stack(struct bacheca* b){
+  b->stack=(struct foto**)malloc(MAX * sizeof(struct foto*));
+  b->length=0;
 }
 
-void print(struct foto*f){
-    printf("\n---------------\n");
-    printf("path: %s\n", f->img_path);
-    printf("didascalia: %s\n", f->didascalia);
-    printf("like: %d\n", f->like);
-    printf("---------------\n");
+int len(struct bacheca* b){
+  return b->length;
 }
-int check_path(char path[]){
-    if (path[0]=='/')
-    {
-        int len= strlen(path);
-        if (path[(len)-1]<'A'||path[(len)-1]>'z')
-        {
-            return 1;
-        }
-        
+int is_empty(struct bacheca* b){
+  return len(b)==0;
+}
+int push(struct bacheca* b, struct foto f){
+  if(len(b)>=MAX){
+    return 1;
+  }
+  
+  b->stack=realloc(b->stack, (b->length + 1)*sizeof(struct foto*));
+  b->stack[b->length]=(struct foto*)malloc(sizeof(struct foto));
+  *(b->stack[b->length])=f;
+  b->length++;
+  return 0;
+}
+
+struct foto* pop(struct bacheca* b){
+  if(is_empty(b)){
+    return NULL;
+  }
+  struct foto* f = b->stack[b->length - 1];
+  b->length--;
+  return f;
+}
+void read_from_file(struct bacheca* b, char* filename){
+  FILE* file=fopen(filename, "r");
+  if(file==NULL){
+    perror("errore durante apertura file\n");
+  }
+  struct foto f;
+  while(!feof(file)){
+    fgets(f.path, sizeof(f.path), file);
+    fgets(f.didascalia, sizeof(f.didascalia), file);
+    fscanf(file, "%d\n", &f.like);
+    push(b,f);
+    //print(&f);
+  }
+  fclose(file);
+}
+
+int is_valid_path(char path[]){
+  if(path[0]=='/'){
+    int len=strlen(path);
+    len=len-1;
+    if(path[len]<'A'||path[len]>'z'){
+      return 1;
     }
-    else return 0;
-    
+  }
+  else return 0;
+}
+
+void deallocate(struct bacheca* b){
+  while(!is_empty(b)){
+    struct foto* f=pop(b);
+    free(f);
+  }
+  free(b->stack);
+}
+
+void print(struct foto* f){
+  printf("%s\n", f->path);
+  printf("%s\n", f->didascalia);
+  printf("%d\n", f->like);
 }
