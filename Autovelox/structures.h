@@ -1,11 +1,11 @@
-#define max 5
-struct autovelox{
-    char targa[256];
-    float velocità;
-    float limite;
+#define MAX 5
+struct veicolo{
+  char targa[10];
+  float velocità;
+  float limite;
 };
 
-struct report{
-    struct autovelox** deposito;
-    int lenght;
+struct autovelox{
+  struct veicolo** stack;
+  int length;
 };

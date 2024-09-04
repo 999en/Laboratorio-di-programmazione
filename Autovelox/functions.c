@@ -1,121 +1,110 @@
 #include "functions.h"
+/*--------------------------------------------------------------------*/
 
-int push(struct report* r, struct autovelox* a){
-    if (len(r)>=max)
-    {
-        printf("coda piena");
-        return 1;
+void init_stack(struct autovelox* a){
+  a->stack=(struct veicolo**)malloc(MAX*sizeof(struct veicolo));
+  a->length=0;
+}
+
+/*--------------------------------------------------------------------*/
+int len(struct autovelox* a){
+  return a->length;
+}
+
+/*--------------------------------------------------------------------*/
+
+int is_empty(struct autovelox* a){
+  return len(a)==0;
+}
+
+/*--------------------------------------------------------------------*/
+
+int push(struct autovelox* a, struct veicolo v){
+  if(len(a)>=MAX){
+    return 1;
+  }
+  a->stack=realloc(a->stack, (a->length + 1)*sizeof(struct veicolo*));
+  a->stack[a->length]=(struct veicolo*)malloc(sizeof(struct veicolo));
+  *(a->stack[a->length])=v;
+  a->length++;
+  return 0;
+}
+
+/*--------------------------------------------------------------------*/
+
+struct veicolo* pop(struct autovelox* a){
+  if(is_empty(a)){
+    return NULL;
+  }
+  struct veicolo* v=a->stack[a->length - 1];
+  a->length--;
+  return v;
+}
+
+/*--------------------------------------------------------------------*/
+
+void deallocate(struct autovelox* a){
+  while(!is_empty(a)){
+    struct veicolo* v=pop(a);
+    free(v);
+  }
+  free(a->stack);
+}
+void print(struct veicolo* v){
+  printf("%s ", v->targa);
+  printf("%.1f ", v->velocità);
+  printf("%.1f\n", v->limite);
+}
+void read_from_file(struct autovelox* a, char* filename){
+  FILE* file=fopen(filename, "r");
+  if(file==NULL){
+    perror("errore durante apertura file\n");
+  }
+  struct veicolo v;
+  while(!feof(file)){
+    fscanf(file, "%s ",v.targa);
+    fscanf(file, "%f ", &v.velocità);
+    fscanf(file, "%f\n", &v.limite);
+   push(a,v); 
+  }
+  fclose(file);
+}
+int is_crime(struct veicolo* v){
+  float limite_tollerato=v->limite + (v->limite/100) * 5;
+  if(v->velocità>limite_tollerato){
+    return 1;
+  }
+  else return 0;
+}
+void write_on_file(struct autovelox* a, char* filename){
+  FILE* file=fopen(filename, "w");
+  if(file==NULL){
+    perror("errore durante apertura file\n");
+  }
+
+  while(!is_empty(a)){
+    struct veicolo*v=pop(a);
+    if(is_crime(v)==1){
+      float limite_superato=v->velocità - v->limite;
+      float sanzione=0;
+      if(limite_superato<=10.0){
+        sanzione=173.0;
+      }
+      else if(limite_superato>10.0&&limite_superato<40.0){
+        sanzione=695.0;
+      }
+      else if(limite_superato>40.0&&limite_superato<60.0){
+        sanzione=2170.0;
+      }
+      else if(limite_superato>60.0){
+        sanzione=3382.0;
+      }
+      fprintf(file, "%s ", v->targa);
+      fprintf(file, "%.1f ", limite_superato);
+      fprintf(file, "%.1f\n", sanzione);
     }
-    
-    r->lenght++;
-    r->deposito=realloc(r->deposito, (r->lenght)*sizeof(struct autovelox*));
-    r->deposito[(r->lenght)-1]=a;
-    return 0;
+  }
+  fclose(file);
 }
 
-void init_queue(struct report* r){
-    r->deposito=NULL;
-    r->lenght=0;
-}
-int len(struct report* r){
-    return r->lenght;
-}
-int is_empty(struct report* r){
-    if (len(r)==0)
-    {
-        printf("coda vuota\n");
-        return 1;
-    } else return 0;
-    
-}
-
-struct autovelox* pop(struct report* r){
-    if(is_empty(r)==1){
-		return NULL;
-    }
-	
-
-    struct autovelox* a=r->deposito[(r->lenght)-1];
-    r->deposito=realloc(r->deposito, ((r->lenght)-1)*sizeof(struct autovelox*));
-    r->lenght--;
-    return a;
-}
-void load_veichle_from_file(struct report* r, char nomefile[]){
-    FILE* file=fopen(nomefile, "r");
-    if (file==NULL)
-    {
-        printf("qualcosa è andato storto\n");
-    }
-    //inizializzo pila
-    init_queue(r);
-    while (!feof(file))
-    {
-        struct autovelox* a=malloc(sizeof(struct autovelox));
-        fscanf(file, "%s %f %f", a->targa, &a->velocità, &a->limite);
-        push(r,a);
-    }
-    fclose(file);
-}
-
-void print(struct autovelox* a){
-    if (a==NULL)
-    {
-        return NULL;
-    }
-    
-    printf("----------------\n");
-    printf("%s %.1f %.1f\n",  a->targa, a->velocità, a->limite);
-    printf("----------------\n");
-}
-
-int is_crime(struct autovelox* r){
-    float tolleranza= r->limite + 5*(r->limite/100);
-
-    
-    if (r->velocità > tolleranza)
-    {
-        return 1;
-    } else return 0;
-    
-
-}
-
-void write_on_file(struct report* r, char nomefile[]){
-    FILE* file=fopen(nomefile, "w");
-    struct autovelox *p=pop(r);
-    int l= r->lenght;
-    float sanzione=0;
-    float limite_superato=0;
-    if (file==NULL)
-    {
-        printf("è andato qualcosa storto durante la scrittura\n");
-    }
-
-    for (int i = 0; i < l+1; i++)
-    {
-        if (is_crime(r->deposito[i])==1)
-        {
-            limite_superato=(r->deposito[i]->velocità)-(r->deposito[i]->limite);
-            if (limite_superato<=10.0)
-            {
-                sanzione=173.0;
-            }
-            else if(limite_superato>10.0&&limite_superato<=40.0){
-                sanzione=695.0;
-            }
-            else if(limite_superato>40.0&&limite_superato<=60.0){
-                sanzione=2170.0;
-            }
-            else if(limite_superato>60.0){
-                sanzione=3382.0;
-            }
-            
-            fprintf(file, "%s %.1f %.1f\n", r->deposito[i]->targa, limite_superato, sanzione);
-
-        }
-        
-    }
-    
-    fclose(file);
-
-}
+/*--------------------------------------------------------------------*/
