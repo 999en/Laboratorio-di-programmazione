@@ -50,11 +50,17 @@ void deallocate(struct autovelox* a){
   }
   free(a->stack);
 }
+
+/*--------------------------------------------------------------------*/
+
 void print(struct veicolo* v){
   printf("%s ", v->targa);
   printf("%.1f ", v->velocità);
   printf("%.1f\n", v->limite);
 }
+
+/*--------------------------------------------------------------------*/
+
 void read_from_file(struct autovelox* a, char* filename){
   FILE* file=fopen(filename, "r");
   if(file==NULL){
@@ -69,6 +75,9 @@ void read_from_file(struct autovelox* a, char* filename){
   }
   fclose(file);
 }
+
+/*--------------------------------------------------------------------*/
+
 int is_crime(struct veicolo* v){
   float limite_tollerato=v->limite + (v->limite/100) * 5;
   if(v->velocità>limite_tollerato){
@@ -76,6 +85,9 @@ int is_crime(struct veicolo* v){
   }
   else return 0;
 }
+
+/*--------------------------------------------------------------------*/
+
 void write_on_file(struct autovelox* a, char* filename){
   FILE* file=fopen(filename, "w");
   if(file==NULL){
@@ -106,5 +118,3 @@ void write_on_file(struct autovelox* a, char* filename){
   }
   fclose(file);
 }
-
-/*--------------------------------------------------------------------*/
