@@ -1,41 +1,51 @@
 #include "functions.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(){
-  struct bacheca start;
-  init_stack(&start);
-  read_from_file(&start, "datifoto.txt");
-  struct foto* f= pop(&start);
-  print(f);
 
-  
-  int scelta=-1;
-  while(scelta!=0){
-    printf("\n0 - esci\n1 - vedi prossimo post\n2 - aggiungi like\n3 - controllo path\n");
-    scanf("%d", &scelta);
-    switch(scelta){
-      case 0:
-        printf("esco");
-        break;
-      case 1:
-        f=pop(&start);
-        if(f==NULL){
-          return 0;
-        }
-        print(f);
-        break;
-      case 2:
-        f->like++;
-        print(f);
-        break;
-      case 3:
-        
-        int v = is_valid_path(f->path);
-        printf("CONTROLLO PATH:----------->%d\n", v);
-        break;
-    
-    }
-  }
-  deallocate(&start);
-  return 0;
+    struct bacheca bacheca;
+	init_queue(&bacheca);
+	load_file_from_user(&bacheca,"datifoto.txt");
+	struct foto *p=pop(&bacheca);
+	int scelta=-1;
+	while (scelta!=0)
+	{
+		printf("0 - esci 1 - stampa prossima foto - 2 aggiungi like - 3 - check path - ->");
+		scanf("%d", &scelta);
+
+		switch (scelta)
+		{
+		case 0:
+			printf("chiusura programma\n");
+			break;
+		
+		case 1:
+			if (p==NULL)
+			{
+				break;
+			}
+		
+			print(p);
+			p=pop(&bacheca);
+			
+			
+			break;
+		case 2:
+			p->like++;
+			print(p);
+			break;
+
+		case 3:
+			int a=check_path(p->img_path);
+			printf("1 se è un percorso file, 0 il contrario-->");
+			printf("[%d]\n\n", a);
+			break;
+		}
+
+
+	}
+	return 0;
+
+
 }

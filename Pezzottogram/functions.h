@@ -3,12 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-void init_stack(struct bacheca*);
+int init_queue(struct bacheca*);
 int len(struct bacheca*);
 int is_empty(struct bacheca*);
-int push(struct bacheca*, struct foto);
+void push(struct bacheca*, struct foto*);
 struct foto* pop(struct bacheca*);
-void read_from_file(struct bacheca*, char*);
-int is_valid_path(char[]);
-void deallocate(struct bacheca*);
+void load_file_from_user(struct bacheca*, char[]);
 void print(struct foto*);
+int check_path(char[]);
